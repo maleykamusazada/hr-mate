@@ -279,11 +279,13 @@ function CVScreen() {
       setResults(merged);
     } catch (e) {
       console.error(e);
-      setError("Təhlil zamanı xəta baş verdi. Yenidən cəhd et.");
+      setError("XƏTA: " + (e.message || "naməlum"));
+
     } finally {
       setLoading(false);
     }
   }
+setError("XƏTA: " + (e.message || "naməlum"));
 
   return (
     <div>
