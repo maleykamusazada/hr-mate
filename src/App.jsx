@@ -1,4 +1,149 @@
-ğ
+            import React, { useState, useEffect, useRef } from "react";
+import * as mammoth from "mammoth";
+
+const FONT_SERIF = "'Libre Baskerville', Georgia, serif";
+const FONT_SANS = "'Inter', system-ui, sans-serif";
+
+const C = {
+  bg: "#F7F4EC",
+  card: "#FFFFFF",
+  ink: "#1E2A22",
+  green: "#2F4A3E",
+  greenDeep: "#16261E",
+  greenBright: "#3E7A5D",
+  gold: "#C99B4E",
+  goldSoft: "#F6E8CE",
+  coral: "#E0703F",
+  border: "#E6DFCC",
+  muted: "#767A6E",
+  danger: "#C1553E",
+};
+
+function uid() {
+  return Math.random().toString(36).slice(2, 10);
+}
+
+function scoreTheme(score) {
+  if (score >= 80) return { bg: "#E4F1E1", text: "#1E5C3B", border: "#B6DCB0", bar: "linear-gradient(90deg,#3E7A5D,#2F4A3E)" };
+  if (score >= 60) return { bg: "#FBF0D9", text: "#8A5F1E", border: "#EBD299", bar: "linear-gradient(90deg,#E6B65C,#C99B4E)" };
+  return { bg: "#FAE7E1", text: "#A5432D", border: "#E9BDAC", bar: "linear-gradient(90deg,#E0703F,#C1553E)" };
+}
+
+function fileIcon(type) {
+  if (type === "pdf") return "📕";
+  if (type === "docx") return "📘";
+  return "📄";
+}
+
+function emptyCandidate() {
+  return { id: uid(), name: "", fileName: "", fileType: "", textContent: "", base64: "", status: "empty" };
+}
+
+async function readFile(file) {
+  const ext = file.name.split(".").pop().toLowerCase();
+  if (ext === "txt") {
+    const text = await file.text();
+    return { fileType: "txt", textContent: text, base64: "" };
+  }
+  if (ext === "docx") {
+    const buf = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer: buf });
+    return { fileType: "docx", textContent: result.value, base64: "" };
+  }
+  if (ext === "pdf") {
+    const dataUrl = await new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(r.result);
+      r.onerror = () => rej(new Error("Oxuma xətası"));
+      r.readAsDataURL(file);
+    });
+    const base64 = dataUrl.split(",")[1];
+    return { fileType: "pdf", textContent: "", base64 };
+  }
+  throw new Error("unsupported");
+}
+
+function ScoreBar({ score }) {
+  const [width, setWidth] = useState(0);
+  useEffect(() => {
+    const t = setTimeout(() => setWidth(score), 60);
+    return () => clearTimeout(t);
+  }, [score]);
+  const theme = scoreTheme(score);
+  return (
+    <div style={{ height: 8, background: "#EDE8D8", borderRadius: 20, overflow: "hidden", marginTop: 8 }}>
+      <div
+        style={{
+          height: "100%",
+          width: `${width}%`,
+          background: theme.bar,
+          borderRadius: 20,
+          transition: "width 900ms cubic-bezier(.22,1,.36,1)",
+        }}
+      />
+    </div>
+  );
+}
+
+export default function HRMate() {
+  const [screen, setScreen] = useState("cv");
+
+  return (
+    <div
+      style={{
+        fontFamily: FONT_SANS,
+        background: C.bg,
+        minHeight: "100%",
+        boxSizing: "border-box",
+      }}
+    >
+      <Header screen={screen} setScreen={setScreen} />
+      <div style={{ maxWidth: 480, margin: "0 auto", padding: "0 18px 60px" }}>
+        {screen === "cv" ? <CVScreen /> : <InterviewScreen />}
+      </div>
+    </div>
+  );
+}
+
+function Header({ screen, setScreen }) {
+  return (
+    <div
+      style={{
+        background: `linear-gradient(135deg, ${C.greenDeep} 0%, ${C.green} 55%, ${C.greenBright} 100%)`,
+        padding: "28px 18px 22px",
+        marginBottom: 22,
+        position: "relative",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          top: -40,
+          right: -30,
+          width: 140,
+          height: 140,
+          borderRadius: "50%",
+          background: "rgba(201,155,78,0.18)",
+        }}
+      />
+      <div style={{ maxWidth: 480, margin: "0 auto", position: "relative" }}>
+        <div style={{ fontSize: 12, letterSpacing: 1.5, color: C.gold, fontWeight: 700, marginBottom: 6 }}>
+          HR MATE
+        </div>
+        <h1
+          style={{
+            fontFamily: FONT_SERIF,
+            fontWeight: 400,
+            fontSize: 25,
+            color: "#FFFDF8",
+            margin: "0 0 18px",
+            lineHeight: 1.3,
+          }}
+        >
+          {screen === "cv" ? "Ən uyğun namizədi tap" : "Müsahibə sualları bankı"}
+        </h1>
+        <div
           style={{
             display: "flex",
             background: "rgba(255,255,255,0.12)",
@@ -82,7 +227,7 @@ function CVScreen() {
       setError("Ən azı bir namizədin CV faylını yüklə.");
       return;
     }
-        setLoading(true);
+  setLoading(true);
     setResults(null);
 
     try {
@@ -609,12 +754,5 @@ const analyzeBtnStyle = {
   cursor: "pointer",
   boxShadow: "0 4px 14px rgba(47,74,62,0.25)",
 };
-
-    
-    
-
-    
-  );
-}
 
 
