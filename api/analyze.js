@@ -16,7 +16,7 @@ export default async function handler(req, res) {
     return;
   }
 
-  const model = "gemini-flash-latest";
+  const model = "gemini-2.5-flash-lite";
   const url = "https://generativelanguage.googleapis.com/v1beta/models/" + model + ":generateContent?key=" + apiKey;
 
   const maxAttempts = 3;
