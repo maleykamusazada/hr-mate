@@ -285,7 +285,6 @@ function CVScreen() {
       setLoading(false);
     }
   }
-setError("XƏTA: " + (e.message || "naməlum"));
 
   return (
     <div>
