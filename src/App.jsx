@@ -86,6 +86,7 @@ const TABS = [
   { key: "laborcode", label: "Əmək Məcəlləsi", icon: "⚖️" },
   { key: "handbook", label: "HR kitabçası", icon: "📗" },
   { key: "kpi", label: "KPI & 360°", icon: "🎯" },
+  { key: "taxguide", label: "ƏMAS/Vergi", icon: "💰" },
 ];
 
 const TAB_TITLES = {
@@ -94,6 +95,7 @@ const TAB_TITLES = {
   laborcode: "Əmək Məcəlləsi bələdçisi",
   handbook: "HR stolüstü kitabçası",
   kpi: "KPI çərçivəsi və 360° qiymətləndirmə",
+  taxguide: "ƏMAS, İSB və Vergi bələdçisi",
 };
 
 export default function HRMate() {
@@ -107,6 +109,7 @@ export default function HRMate() {
         {screen === "laborcode" && <LaborCodeScreen />}
         {screen === "handbook" && <HandbookScreen />}
         {screen === "kpi" && <KpiScreen />}
+        {screen === "taxguide" && <TaxGuideScreen />}
       </div>
     </div>
   );
@@ -898,6 +901,228 @@ function KpiScreen() {
           <div style={{ fontFamily: FONT_SERIF, fontSize: 34, color: C.greenDeep }}>{avg.toFixed(1)} / 5</div>
         </div>
       )}
+    </div>
+  );
+}
+
+/* ============================= ƏMAS / İSB / VERGİ BƏLƏDÇİSİ ============================= */
+
+const TAX_SUBTABS = [
+  { key: "emas", label: "ƏMAS" },
+  { key: "isb", label: "İSB" },
+  { key: "vergi", label: "Vergilər" },
+  { key: "numune", label: "Nümunə" },
+  { key: "emeliyyat", label: "Əməliyyatlar" },
+];
+
+const TAX_LEAD = {
+  emas: "ƏMAS — \"Əmək və Məşğulluq\" altsistemi — Əmək və Əhalinin Sosial Müdafiəsi Nazirliyinin idarə etdiyi dövlət platformasıdır. 2024-cü ildən etibarən əmək müqaviləsi yalnız burada hər iki tərəf imzaladıqdan sonra hüquqi qüvvəyə minir.",
+  isb: "İSB (İcbari Sosial Sığorta, tam adı: Məcburi Dövlət Sosial Sığortası) — hər ay əməkhaqqından avtomatik tutulan və işçinin pensiya, xəstəlik, hamiləlik-doğum və dəfn müavinətlərini maliyyələşdirən icbari ödənişdir.",
+  vergi: "Gəlir vergisi (FŞGV) — işəgötürən tərəfindən əməkhaqqından mənbədə tutulan və birbaşa dövlət büdcəsinə köçürülən vergidir. 2019–2025 arasında olan 8000 manatadək güzəşt 2026-cı ildən bitib.",
+  numune: "1000 manat brutto əməkhaqqı üzərindən, öyrənmək məqsədilə, addım-addım hesablama (2026-cı il dərəcələri, qeyri-neft-qaz özəl sektor).",
+  emeliyyat: "İşçinin işə qəbulundan işdən çıxmasına qədər, HR-in konkret olaraq etməli olduğu əməliyyatlar — mərhələ-mərhələ.",
+};
+
+const TAX_SECTIONS = {
+  emas: [
+    {
+      title: "Nə üçün yaradılıb",
+      items: [
+        "Şəffaflıq — hər müqavilə vahid dövlət bazasında qeydə alınır",
+        "Rəsmiləşdirmə — sənədsiz, qeyri-rəsmi işləmə praktiki olaraq mümkünsüzləşir",
+        "Sürət — kağız gəzdirmək, imza toplamaq üçün vaxt sərf etməyə ehtiyac qalmır",
+        "Statistika — dövlət real vaxtda ölkə üzrə məşğulluq mənzərəsini görür",
+      ],
+    },
+    {
+      title: "Necə işləyir",
+      items: [
+        "1. Qeydiyyat — işəgötürən ƏMAS-da öz təşkilatının profilini yaradır",
+        "2. Müqavilənin daxil edilməsi — yeni işçi üçün elektron müqavilə forması doldurulur",
+        "3. Elektron imza — ASAN İmza / SİMA İmza vasitəsilə hər iki tərəf təsdiqləyir",
+        "4. Qüvvəyə minmə — hər iki imza tamamlanan kimi müqavilə hüquqi qüvvə qazanır",
+        "5. Sonrakı dəyişikliklər — maaş artımı, vəzifə dəyişikliyi, xitam yenə eyni sistemdə",
+      ],
+    },
+    {
+      title: "HR mütəxəssisi ƏMAS-da konkret nə edir",
+      items: [
+        "Məzuniyyət əmrləri (illik, ödənişsiz və s.)",
+        "Ezamiyyə əmrləri (ölkədaxili və xarici)",
+        "Xəstəlik vərəqələrinin avtomatik qeydiyyatı",
+        "İşçinin əvvəlki rəsmi iş yerləri barədə məlumat",
+        "İnzibati hesabatlıq (cərimə və uyğunsuzluqlar)",
+      ],
+    },
+  ],
+  isb: [
+    {
+      title: "Kim ödəyir",
+      items: [
+        "İşçi payı — əməkhaqqından avtomatik tutulur, netto məbləğdən azalır",
+        "İşəgötürən payı — işəgötürənin öz büdcəsindən əlavə ödənilir",
+      ],
+    },
+    {
+      title: "2026 — dərəcələr (qeyri-neft-qaz, özəl sektor)",
+      items: [
+        "200 manatadək: işçi 3%, işəgötürən 22%",
+        "200–2500 manat: işçi 6 m. + 10% (200-dən yuxarı), işəgötürən 44 m. + 15% (200-dən yuxarı)",
+        "8000-dən yuxarı hissə: işçi 10%, işəgötürən 11%",
+        "İcbari tibbi sığorta (ayrıca): cəmi 4% — işçi 2%, işəgötürən 2%",
+      ],
+    },
+    {
+      title: "Niyə dərəcələr pillə-pillə dəyişir",
+      items: [
+        "Aşağı əməkhaqqıda işçi payı çox aşağıdır — ən az qazananları qorumaq üçün",
+        "Yüksək əməkhaqqıda ümumi dərəcə azaldılır — yüksək maaşların rəsmi bəyanını təşviq etmək üçün",
+      ],
+    },
+  ],
+  vergi: [
+    {
+      title: "Tarixi kontekst",
+      items: [
+        "2019–2025: qeyri-neft özəl sektorda 8000 manatadək əməkhaqqı tam vergidən azad idi",
+        "2026-cı ildən bu güzəşt bitib, mərhələli keçid dövrü başlayıb",
+      ],
+    },
+    {
+      title: "2026 — dərəcələr (qeyri-neft-qaz, özəl sektor)",
+      items: [
+        "200 manatadək: tutulmur (tam azad)",
+        "200–2500 manat: 3% (200-dən yuxarı hissəyə)",
+        "2500–8000 manat: 75 m. + 10% (2500-dən yuxarı)",
+        "8000-dən yuxarı: 625 m. + 14% (8000-dən yuxarı)",
+      ],
+    },
+    {
+      title: "Ən aşağı pillənin gələcək artımı",
+      items: ["2026: 3%", "2027: 5%", "2028 və sonrası: 7%"],
+    },
+    {
+      title: "HR üçün əməli məna",
+      items: [
+        "Brutto vs netto fərqini danışıqlarda aydın bildirin",
+        "2026-da netto əvvəlkindən aşağı ola bilər — gözlənti idarəetməsi vacibdir",
+        "Büdcə planlaması köhnə güzəştli hesablamalara əsaslanmamalıdır",
+      ],
+    },
+  ],
+  numune: [
+    {
+      title: "Addım 1 — işçidən tutulanlar (1000 ₼ brutto üzərindən)",
+      items: [
+        "Gəlir vergisi: 30 manat",
+        "Sosial sığorta: 6 + 80 = 86 manat",
+        "Tibbi sığorta: 20 manat",
+        "Netto = 1000 − 30 − 86 − 20 = 864 manat",
+      ],
+    },
+    {
+      title: "Addım 2 — işəgötürəndən əlavə",
+      items: [
+        "Sosial sığorta: 44 + 120 = 164 manat",
+        "Tibbi sığorta: 20 manat",
+        "Ümumi işəgötürən xərci = 1000 + 164 + 20 = 1184 manat",
+      ],
+    },
+    {
+      title: "Yekun cədvəl",
+      items: [
+        "Brutto əməkhaqqı: 1000 ₼",
+        "İşçidən tutulan cəmi: 136 ₼",
+        "Netto: 864 ₼",
+        "İşəgötürənin ümumi xərci: 1184 ₼",
+      ],
+    },
+  ],
+  emeliyyat: [
+    {
+      title: "Mərhələ 1 — İşə qəbul zamanı",
+      items: [
+        "Vəzifə profilini yazılı təsdiqləyin",
+        "Brutto/netto fərqini təklif məktubunda göstərin",
+        "ƏMAS-da yeni əmək müqaviləsini yaradın və doldurun",
+        "Elektron imza (ASAN İmza/SİMA İmza) tələb edin",
+        "Müqavilənin hər iki imzadan sonra qüvvəyə mindiyini yoxlayın",
+      ],
+    },
+    {
+      title: "Mərhələ 2 — Hər ay təkrarlanan əməliyyatlar",
+      items: [
+        "Brutto əməkhaqqını hesablayın",
+        "Gəlir vergisini, sosial və tibbi sığortanı hesablayıb tutun",
+        "İşəgötürən payını ayrıca hesablayın",
+        "Netto məbləği köçürün, tutumları dövlət hesablarına köçürün",
+        "Aylıq hesabatları (e-taxes, sosial.gov.az) təqdim edin",
+        "Əməkhaqqı vərəqəsini işçiyə əlçatan edin",
+      ],
+    },
+    {
+      title: "Mərhələ 3 — Məzuniyyət, xəstəlik və ezamiyyət zamanı",
+      items: [
+        "İllik məzuniyyəti ƏMAS-da rəsmiləşdirin",
+        "Xəstəlik vərəqəsinin ƏMAS-a düşdüyünü yoxlayın",
+        "Ezamiyyə əmrini ƏMAS-da qeydə alın",
+        "Ödənişsiz məzuniyyətdə tutum olmadığını nəzərə alın",
+      ],
+    },
+    {
+      title: "Mərhələ 4 — Əməkhaqqı dəyişikliyi zamanı",
+      items: [
+        "Yeni məbləği ƏMAS-da müqaviləyə dəyişiklik kimi qeydə alın",
+        "Yeni vergi/sığorta dilimini yenidən yoxlayın",
+        "Bonusları da eyni qaydalarla vergiyə cəlb edin",
+      ],
+    },
+    {
+      title: "Mərhələ 5 — İşdən çıxma (xitam) zamanı",
+      items: [
+        "Xitamın növünü düzgün müəyyən edin",
+        "Son ödənişləri (məzuniyyət kompensasiyası daxil) hesablayın",
+        "Xitamı ƏMAS-da rəsmiləşdirin",
+        "Tələb olunarsa arayış təqdim edin",
+      ],
+    },
+    {
+      title: "Mərhələ 6 — İllik/dövrü nəzarət",
+      items: [
+        "Yeni il dərəcələrini yoxlayın (2027: 5%)",
+        "ƏMAS-dakı məlumatların aktuallığını yoxlayın",
+        "Ödəniş hesabatlarını arxivləşdirin",
+      ],
+    },
+  ],
+};
+
+function TaxGuideScreen() {
+  const [sub, setSub] = useState("emas");
+  const sections = TAX_SECTIONS[sub];
+  return (
+    <div>
+      <div style={{ background: C.goldSoft, border: "1px solid " + C.gold, borderRadius: 12, padding: "14px 16px", marginBottom: 20, fontSize: 12.5, lineHeight: 1.6, color: "#5A4520" }}>
+        {TAX_LEAD[sub]}
+      </div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 20 }}>
+        {TAX_SUBTABS.map(function (t) {
+          return <Chip key={t.key} label={t.label} active={sub === t.key} onClick={function () { setSub(t.key); }} color={C.green} bg="#EAE7DC" />;
+        })}
+      </div>
+      {sections.map(function (sec, i) {
+        return (
+          <div key={i} style={Object.assign({}, cardStyle, { marginBottom: 14 })}>
+            <div style={{ fontFamily: FONT_SERIF, fontSize: 16.5, color: C.greenDeep, marginBottom: 8 }}>{sec.title}</div>
+            <ul style={{ margin: 0, paddingLeft: 18, fontSize: 13.5, lineHeight: 1.65, color: C.ink }}>
+              {sec.items.map(function (it, j) { return <li key={j} style={{ marginBottom: 6 }}>{it}</li>; })}
+            </ul>
+          </div>
+        );
+      })}
+      <div style={{ fontSize: 11.5, color: C.muted, lineHeight: 1.5, marginTop: 6 }}>
+        Mənbələr: taxes.gov.az (2026 bukletlər), "Sosial sığorta haqqında" Qanun, sosial.gov.az. Rəqəmlər hər il dəyişə bilər — konkret hüquqi tələblər üçün rəsmi mənbələrə müraciət edin.
+      </div>
     </div>
   );
 }
